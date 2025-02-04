@@ -29,11 +29,13 @@ those documents using NLP and LLM.
    ```
 
 ## Usage
-
-
+- the `quantitative_context_extraction()` of the string_manipulation file is focused specifically on numerical data extraction
 
 ## Features
 
 
 
 ## TODO
+- Establish OpenAI api calls with specific system messages
+- build a function which can breakdown large (12 pages in average) reports into chunks which the OpenAI API can ingest without hitting the token limitations
+- These tasks can be referred to previous tools written in `reimagined-funicular` repository
