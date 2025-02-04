@@ -43,4 +43,3 @@ def quantitative_context_extraction():
         word_length += len(m.split(" "))
         # print(m)
     print(word_length)
-

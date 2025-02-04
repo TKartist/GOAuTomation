@@ -30,6 +30,7 @@ those documents using NLP and LLM.
 
 ## Usage
 - the `quantitative_context_extraction()` of the string_manipulation file is focused specifically on numerical data extraction
+- Extracting all texts while maintaining their positional value
 
 ## Features
 
