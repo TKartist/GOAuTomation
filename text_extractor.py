@@ -17,7 +17,7 @@ def extract_text_from_pdf(pdf_path):
     return text
 
 
-def pdf_to_html(pdf_path):
+def pdf_to_text(pdf_path):
     doc = fitz.open(pdf_path)
     bucket = []
     pprev, prev, bucket = "", "", []
@@ -62,8 +62,3 @@ def organize_bucket(bucket):
 
 
 
-bucket = pdf_to_html("document_folder/MDR43005fr.pdf")
-new_bucket = organize_bucket(bucket)
-with open("output/sample2.txt", "w") as f:
-    f.write(str(new_bucket))
-    f.close()
