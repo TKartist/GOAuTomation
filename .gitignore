@@ -1,2 +1,11 @@
+# ignore all folders
 */
+
+# ignore testing files
 test_out.py
+
+# ignore all txt files
+*.txt
+
+# ignore secret info extractor
+info_withdrawl.py

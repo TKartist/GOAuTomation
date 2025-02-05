@@ -1,34 +1,31 @@
-from openai import OpenAI, AsyncOpenAI
+import openai
+from info_withdrawl import secret_extraction
 import os
 
-# send asynchronous request for response to OpenAI API
-async def file_parse_prompt(long_stream, model="gpt-4o"):
-    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-    client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-    stream_length = len(long_stream)
-    call_count = stream_length % 2048
-    if stream_length % 2048 != 0:
-        call_count += 1
-    prompt_list = [{
-        "role" : "system",
-        "content" : "You are a helpful assistant" # TO BE EDITED
-    }]
+def ask_azure_openai(prompt, secrets):
+    openai.api_type = "azure"
 
-    for i in range(call_count):
-        prompt_list.append({
-            "role": "user",
-            "content" : long_stream[i * 2048 : min((i + 1) * 2048, stream_length)],
-        })
-    prompt_list.append({
-        "role" : "user",
-        "content" : "All good, please compile"
-    })
+    # Azure OpenAI endpoint
+    openai.api_base = secrets["Target URI"]
 
-    gpt_response = await client.chat.completions.create(
-        messages=prompt_list,
-        model="gpt-4o",
-        temperature=1
+    # Use environment variables for security
+    openai.api_key = os.environ.get("OPENAI_API_KEY")  
+    openai.api_version = secrets["Model version"] 
+    # Deployment name
+    deployment_name = secrets["Deployment name"]
+    """Send a prompt to Azure OpenAI ChatGPT API"""
+    response = openai.ChatCompletion.create(
+        engine=deployment_name,  
+        messages=[
+            {"role": "system", "content": "you are a helpful assistant"},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=4096,
+        temperature=0.1
     )
+    return response["choices"][0]["message"]["content"]
 
-    gpt_response = gpt_response.choices[0].message.content
-    return gpt_response
+
+secrets = secret_extraction()
+response = ask_azure_openai("How are you doing?", secrets)
+print(response)
