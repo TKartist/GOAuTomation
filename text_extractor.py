@@ -1,5 +1,6 @@
 import pdfplumber
 import fitz
+import ast
 
 def extract_text_from_pdf(pdf_path):
     text = ''
@@ -57,8 +58,6 @@ def organize_bucket(bucket):
             new_bucket[page][-1][-1] += f" {bucket[p][-1]}"
         p += 1
     return new_bucket
-            
-
 
 
 

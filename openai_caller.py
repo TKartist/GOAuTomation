@@ -2,7 +2,20 @@ import openai
 from info_withdrawl import secret_extraction
 import os
 
-def ask_azure_openai(prompt, secrets):
+
+def collect_system_message():
+    system_message = "You are a very helpful assistant"
+    try:
+        with open("system_message.txt", "r") as f:
+            system_message = f.read()
+            f.close()
+    except Exception as e:
+        print("Error while reading the stored system message: ", e)
+    return system_message
+        
+
+
+def asking_openai(prompt, secrets):
     openai.api_type = "azure"
 
     # Azure OpenAI endpoint
@@ -21,11 +34,24 @@ def ask_azure_openai(prompt, secrets):
             {"role": "user", "content": prompt}
         ],
         max_tokens=4096,
-        temperature=0.1
+        # temperature decides whether if the response is more literal or creative
+        # lower is more literal, and higher is more creative answer
+        # some contexts may require derivation so I chose the middle value
+        temperature=0.5 
     )
     return response["choices"][0]["message"]["content"]
 
+def request_answer():
+    return ""
+
+
+def conversation(pages):
+    system_message = collect_system_message()
+    for page in pages:
+        asking_openai(str(page), secrets)
+    response = request_answer()
+    return response
+        
+
 
 secrets = secret_extraction()
-response = ask_azure_openai("How are you doing?", secrets)
-print(response)
