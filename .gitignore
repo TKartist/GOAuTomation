@@ -9,3 +9,6 @@ test_out.py
 
 # ignore secret info extractor
 info_withdrawl.py
+
+*.csv
+
