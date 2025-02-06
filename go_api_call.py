@@ -1,5 +1,7 @@
 import requests as req
 import pandas as pd
+import ast
+import math
 from datetime import datetime
 
 def collect_appeals_docs(gt_date):
@@ -57,8 +59,28 @@ def collect_appeals_pdf(title, link):
             print(f"Failed fetching the data from {link}: {res.status_code}")
     except Exception as e:
         print(f"Error found: ", e)
+
+
+def main():
+    year = 2022
+    month = 1
+    day = 1
+    gt_date = datetime(year, month, day, 0, 0, 0)
+    collect_appeals_docs(gt_date=gt_date)
+
+    df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
+    df = df.fillna("")
+    for index, row in df.iterrows():
+        link = row["document_url"]
+        title = ast.literal_eval(row["appeal"])["code"]
+        if link == "":
+            link = row["document"]
+        collect_appeals_pdf(f"document_folder/{title}", link)
+    
+
     
 
 
-gt_date = datetime(2022, 1, 1, 0, 0, 0)
-collect_appeals_docs(gt_date=gt_date)
+if __name__ == "__main__":
+    main()
+
