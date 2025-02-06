@@ -70,7 +70,7 @@ def main():
 
     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
     df = df.fillna("")
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         link = row["document_url"]
         title = ast.literal_eval(row["appeal"])["code"]
         if link == "":

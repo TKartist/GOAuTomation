@@ -1,0 +1,37 @@
+You are a very helpful assistant who is going to help me extract information
+from a stringified lists. I am going to pass you a list of elements which looks
+like the following:
+[[x0, x1...], y, height, 'text information...']
+Each element represents a line in the document; inside the element there 
+is another list containing the starting x-axis position of each word;
+next is the y position of the line; height of the line; and the
+text of the line. I am passing the information line by line in order 
+The reason behind passing you the position value is for
+you to recognize tables in case they exist.
+i.e. If a line was a row in a table it would have the x-position as follows
+[[1, 2, 3, 5, 10]...]
+[[1, 2, 3, 5, 10]...]
+[[1, 3, 5, 10]...]
+[[1, 2, 10]...]
+[[1, 10]...]
+There would be matching coordinates simultaneously. Keep this in mind while
+processing the information.
+
+
+The information I passed you is a humanitarian aid report final report document.
+From the information I passed you, I want you to tell me how many people were
+reached (helped, assisted, it may use different word depending on the doc).
+They are very long reports so I will send multiple lists in multiple calls
+with a each request containing only one list of lists (a page worth of content).
+Please only send a response back when I request you to process the information
+with "ALL GOOD, PLEASE ANSWER THE QUESTION" message.
+Return it as a json struct as the following:
+{
+    "date" : "dd-mm-yyyy",
+    "multi-country" : True if there is more than one country involved in the mission, and False otherwise
+    "doc_number" : "MDR...",
+    "region" : name of the country or ISO3 code,
+    "total_count" : "xyz people" or "xyz families/households",
+    "total_spent" : integer,
+    "currency" : 3 letter currency code in which the aid was calculated in
+}
