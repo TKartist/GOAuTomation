@@ -45,6 +45,9 @@ def collect_appeals_docs(gt_date):
         concat_docs.append(val)
     
     df = pd.DataFrame(concat_docs)
+    df = df.fillna("")
+    df["appeal"] = df["appeal"].apply(lambda x: ast.literal_eval(x)["code"])
+    df = df.set_index("appeal")
     df.to_csv(f"docs_from_{gt_date.year}_{gt_date.month}_{gt_date.day}.csv")
 
 
@@ -69,7 +72,6 @@ def main():
     collect_appeals_docs(gt_date=gt_date)
 
     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
-    df = df.fillna("")
     for _, row in df.iterrows():
         link = row["document_url"]
         title = ast.literal_eval(row["appeal"])["code"]

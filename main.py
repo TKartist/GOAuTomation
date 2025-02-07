@@ -4,6 +4,17 @@ import ast
 from openai_caller import conversation
 import asyncio
 
+def convert_pdf_to_text():
+    pdf_list = os.listdir("document_folder")
+    for pdf in pdf_list:
+        bucket = pdf_to_text(f"output/{pdf}")
+        new_bucket = organize_bucket(bucket)
+        filename = pdf.split(".")[0]
+        with open(f"output/{filename}.txt", "w") as f:
+            f.write(str(new_bucket))
+            f.close()
+    
+
 def check_update():
     pdfs = os.listdir("document_folder")
     texts = os.listdir("output")
@@ -30,14 +41,15 @@ def main():
     Read documents from 'document_folder' and convert the pdf files to html
     proceed to organize them and store them in output folder
     '''
-    files = os.listdir("output")
-    outputs = []
-    for file in files:
-        outputs.append(summarize(f"output/{file}"))
-    with open("summary_file.txt", "w") as f:
-        f.write(str(outputs))
-        f.close()
-    print("ALL FILES SUMMARIZED")
+    convert_pdf_to_text()
+    # files = os.listdir("output")
+    # outputs = []
+    # for file in files:
+    #     outputs.append(summarize(f"output/{file}"))
+    # with open("summary_file.txt", "w") as f:
+    #     f.write(str(outputs))
+    #     f.close()
+    # print("ALL FILES SUMMARIZED")
 
 if __name__ == "__main__":
     main()

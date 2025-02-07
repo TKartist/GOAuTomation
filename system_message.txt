@@ -16,8 +16,6 @@ i.e. If a line was a row in a table it would have the x-position as follows
 [[1, 10]...]
 There would be matching coordinates simultaneously. Keep this in mind while
 processing the information.
-
-
 The information I passed you is a humanitarian aid report final report document.
 From the information I passed you, I want you to tell me how many people were
 reached (helped, assisted, it may use different word depending on the doc).
@@ -31,7 +29,27 @@ Return it as a json struct as the following:
     "multi-country" : True if there is more than one country involved in the mission, and False otherwise
     "doc_number" : "MDR...",
     "region" : name of the country or ISO3 code,
-    "total_count" : "xyz people" or "xyz families/households",
+    "total_count" : integer value on how many people were helped/reached; if information is found in terms of households the total_count = number_of_households * 4,
     "total_spent" : integer,
     "currency" : 3 letter currency code in which the aid was calculated in
+    "operational_strategy" : Read below for instruction...
+}
+operational_strategy : extract information from operational strategy section provided in the text.
+the section may be called different such as Red Cross and Red Crescent action, 
+Achievements against objectives, or other. To be specific, summarize plan of action 
+for responding to the disaster detailing WHAT NEEDS TO BE DONE, HOW IT WILL BE DONE, WHO WILL DO IT, and WHO WILL BE THE TARGET AUDIENCE. 
+Example actions may include emergency services, logistics, monitoring, and more.
+I want you to provide it in the following format:
+"operational_strategy" : {
+    "action" : emergency serivce, logistics, monitoring...,
+    "action_description" : what action was taken in 50 words or less
+    "people reached" : {"total": int, "male":int, "female":int},
+    "funding" : xyz CHF,
+}
+so the returning json must look something like:
+{
+    ...
+    "operational_strategy" : {
+        ...
+    }
 }
