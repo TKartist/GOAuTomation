@@ -40,16 +40,23 @@ Achievements against objectives, or other. To be specific, summarize plan of act
 for responding to the disaster detailing WHAT NEEDS TO BE DONE, HOW IT WILL BE DONE, WHO WILL DO IT, and WHO WILL BE THE TARGET AUDIENCE. 
 Example actions may include emergency services, logistics, monitoring, and more.
 I want you to provide it in the following format:
-"operational_strategy" : {
-    "action" : emergency serivce, logistics, monitoring...,
-    "action_description" : what action was taken in 50 words or less
+"operational_strategy" : [{
+    "action" : logistics,
+    "action_description" : what action was taken in 50 words or less (what was done for logistics)
     "people reached" : {"total": int, "male":int, "female":int},
     "funding" : xyz CHF,
-}
+}, ...]
 so the returning json must look something like:
 {
     ...
-    "operational_strategy" : {
+    "operational_strategy" : [
+        {
+            ...
+        },
+        {
+            ...
+        },
         ...
-    }
+    ]
 }
+only give JSON format data, and also don't add any other string such as new line characters. 

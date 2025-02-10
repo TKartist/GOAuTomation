@@ -42,7 +42,6 @@ async def conversation(pages):
         temperature=0.5
     )
     out = response.choices[0].message.content
-    out = "\n".join(out.split("\n")[1:-1])
     return out
         
 

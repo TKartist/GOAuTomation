@@ -7,7 +7,7 @@ import asyncio
 def convert_pdf_to_text():
     pdf_list = os.listdir("document_folder")
     for pdf in pdf_list:
-        bucket = pdf_to_text(f"output/{pdf}")
+        bucket = pdf_to_text(f"document_folder/{pdf}")
         new_bucket = organize_bucket(bucket)
         filename = pdf.split(".")[0]
         with open(f"output/{filename}.txt", "w") as f:
@@ -42,14 +42,14 @@ def main():
     proceed to organize them and store them in output folder
     '''
     convert_pdf_to_text()
-    # files = os.listdir("output")
-    # outputs = []
-    # for file in files:
-    #     outputs.append(summarize(f"output/{file}"))
-    # with open("summary_file.txt", "w") as f:
-    #     f.write(str(outputs))
-    #     f.close()
-    # print("ALL FILES SUMMARIZED")
+    files = os.listdir("output")
+    outputs = []
+    for file in files:
+        outputs.append(summarize(f"output/{file}"))
+    with open("summary_file.txt", "w") as f:
+        f.write(str(outputs))
+        f.close()
+    print("ALL FILES SUMMARIZED")
 
 if __name__ == "__main__":
     main()
