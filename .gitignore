@@ -13,3 +13,4 @@ info_withdrawl.py
 
 *.csv
 
+.env
