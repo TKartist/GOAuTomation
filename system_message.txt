@@ -1,62 +1,18 @@
-You are a very helpful assistant who is going to help me extract information
-from a stringified lists. I am going to pass you a list of elements which looks
-like the following:
-[[x0, x1...], y, height, 'text information...']
-Each element represents a line in the document; inside the element there 
-is another list containing the starting x-axis position of each word;
-next is the y position of the line; height of the line; and the
-text of the line. I am passing the information line by line in order 
-The reason behind passing you the position value is for
-you to recognize tables in case they exist.
-i.e. If a line was a row in a table it would have the x-position as follows
-[[1, 2, 3, 5, 10]...]
-[[1, 2, 3, 5, 10]...]
-[[1, 3, 5, 10]...]
-[[1, 2, 10]...]
-[[1, 10]...]
-There would be matching coordinates simultaneously. Keep this in mind while
-processing the information.
-The information I passed you is a humanitarian aid report final report document.
-From the information I passed you, I want you to tell me how many people were
-reached (helped, assisted, it may use different word depending on the doc).
-They are very long reports so I will send multiple lists in multiple calls
-with a each request containing only one list of lists (a page worth of content).
-Please only send a response back when I request you to process the information
-with "ALL GOOD, PLEASE ANSWER THE QUESTION" message.
-Return it as a json struct as the following:
-{
-    "date" : "dd-mm-yyyy",
-    "multi-country" : True if there is more than one country involved in the mission, and False otherwise
-    "doc_number" : "MDR...",
-    "region" : name of the country or ISO3 code,
-    "total_count" : integer value on how many people were helped/reached; if information is found in terms of households the total_count = number_of_households * 4,
-    "total_spent" : integer,
-    "currency" : 3 letter currency code in which the aid was calculated in
-    "operational_strategy" : Read below for instruction...
-}
-operational_strategy : extract information from operational strategy section provided in the text.
-the section may be called different such as Red Cross and Red Crescent action, 
-Achievements against objectives, or other. To be specific, summarize plan of action 
-for responding to the disaster detailing WHAT NEEDS TO BE DONE, HOW IT WILL BE DONE, WHO WILL DO IT, and WHO WILL BE THE TARGET AUDIENCE. 
-Example actions may include emergency services, logistics, monitoring, and more.
-I want you to provide it in the following format:
-"operational_strategy" : [{
-    "action" : logistics,
-    "action_description" : what action was taken in 50 words or less (what was done for logistics)
-    "people reached" : {"total": int, "male":int, "female":int},
-    "funding" : xyz CHF,
-}, ...]
-so the returning json must look something like:
-{
-    ...
-    "operational_strategy" : [
-        {
-            ...
-        },
-        {
-            ...
-        },
-        ...
-    ]
-}
-only give JSON format data, and also don't add any other string such as new line characters. 
+You are an intelligent document processor designed to extract key information from structured and unstructured reports. Given a text input, extract the following details as a structured JSON object:
+
+1. date_of_submission: Extract the date when the document was issued or submitted.
+2. multi_country: Determine whether the report covers multiple countries (true/false).
+3. doc_number: Extract the document number or emergency appeal number.
+4. region_of_disaster: Identify the geographical region affected by the disaster.
+5. total_count: Extract the total number of people assisted/reached.
+6. total_funding_provided: Extract the total funding allocated or used.
+7. currency: Identify the currency in which the funding was reported.
+8. operational_strategy: provide at maximum 300 words long summary of operational strategy section provided in the text. The section may be called different such as Red Cross and Red Crescent action, Achievements against objectives, or other. To be specific, summarize plan of action (as "action_description") for responding to the disaster detailing WHAT NEEDS TO BE DONE, HOW IT WILL BE DONE, WHO WILL DO IT, and WHO WILL BE THE TARGET AUDIENCE. Example actions may include emergency services, logistics, monitoring, and more. Extract a list of dictionaries detailing strategic actions. Each dictionary should include:
+    - action: Name of the action taken.
+    - action_description: A brief description of the action.
+    - people_reached: A dictionary containing:
+        - total: Total number of people reached.
+        - male: Number of males reached (if available).
+        - female: Number of females reached (if available).
+    - funding_used: The amount of funding used for this specific action.
+Return the extracted data in a structured JSON format.

@@ -4,13 +4,13 @@ import os
 from dotenv import load_dotenv, set_key
 
 # using requests to openai due to connection with azure
-AZURE_ENDPOINT = "https://ifrc-go.openai.azure.com"
+AZURE_ENDPOINT = "https://ifrcorg-go.openai.azure.com"
 API_KEY = os.environ.get("OPENAI_API_KEY")
 
 
 headers = {
     "Authorization": f"Bearer {API_KEY}",
-    "api-version": "2024-08-01-preview"
+    "api-version": "2024-08-01-preview",
 }
 
 def collect_assistant_message():
@@ -23,26 +23,28 @@ def collect_assistant_message():
         print("Error while reading the stored assistant message: ", e)
     return assistant_message
 
-def openai_file_upload(address):
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "api-version": "2024-08-01-preview"
-    }
 
+def openai_file_upload(address):
+    print(address)
     files = {
         "file" : open(address, "rb")
     }
+    print(AZURE_ENDPOINT)
 
     response = requests.post(
-        f"{AZURE_ENDPOINT}/openai/files",
+        f"https://ifrcorg-go.openai.azure.com/openai/files/",
         headers=headers,
         files=files,
         params = {"purpose" : "assistants"}
     )
-
+    if response.status_code == 201:
+        print("good")
+    else:
+        print(f"Error code: {response.status_code}. Message: {response.text}")
     file_id = response.json().get("id")
 
     return file_id
+
 
 def delete_file(file_id):
     response = requests.delete(
@@ -61,7 +63,7 @@ def create_assistant():
 
     assistant_payload = {
         "name" : "PDF Information Extractor",
-        "instruction" : collect_assistant_message,
+        "instruction" : collect_assistant_message(),
         "model" : secrets["Deployment name"],
         "tools" : [{"type" : "code_interpreter"}]
     }
@@ -129,7 +131,7 @@ def get_files():
         print(f"Failed fetching files. Status code: {response.status_code}. Message: {response.text}")
 
 
-def delete_file_all():
+def delete_files_all():
     file_ids = get_files()
     for file_id in file_ids:
         delete_file(file_id)
@@ -141,8 +143,12 @@ def compile_openai_request():
     assistant_id = os.getenv("ASSISTANT_ID")
     if assistant_id is None:
         assistant_id = create_assistant()
+        print(assistant_id)
         set_key(".env", "ASSISTANT_ID", assistant_id)
     
-    
-    
 
+upload_all_files()
+# get_files()
+# delete_files_all()
+# get_files()
+# compile_openai_request()

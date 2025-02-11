@@ -25,7 +25,7 @@ async def conversation(pages):
     client = openai.AsyncAzureOpenAI(
         api_key=os.environ.get("OPENAI_API_KEY"),
         azure_endpoint="https://ifrcorg-go.openai.azure.com/",
-        api_version="2024-08-01-preview"
+        api_version="2024-10-21"
     )
     for page in pages:
         prompt.append({

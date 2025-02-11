@@ -3,6 +3,9 @@ from text_extractor import organize_bucket, pdf_to_text
 import ast
 from openai_caller import conversation
 import asyncio
+import json
+import pandas as pd
+
 
 def convert_pdf_to_text():
     pdf_list = os.listdir("document_folder")
@@ -34,7 +37,16 @@ def summarize(filename):
         return
     doc_summary = asyncio.run(conversation(pages))
     return doc_summary
-    
+
+
+# def clean_and_save(responses):
+#     for i in range(len(responses)):
+#         responses[i] = responses[i].replace("```json", "").replace("```", "").replace("\n", "")
+#         try:
+#             responses[i] = json.loads(responses[i])
+#         except Exception as e:
+#             print("Error parsing JSON:", e)
+
 
 def main():
     '''
