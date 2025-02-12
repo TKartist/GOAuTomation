@@ -1,3 +1,8 @@
+import json
+import ast
+import pandas as pd
+
+
 def quantitative_context_extraction():
     try:
         with open("output/sample.txt", "r") as f:
@@ -43,3 +48,30 @@ def quantitative_context_extraction():
         word_length += len(m.split(" "))
         # print(m)
     print(word_length)
+
+
+def output_string_reader(path, output_file):
+    text = ""
+    try:
+        with open(path, "r") as f:
+            text = f.read()
+            f.close()
+    except Exception as e:
+        print("Error found is ", e)
+        return
+    
+    text = text.replace("```json", "").replace("```", "").replace("\n", " ")
+    list_version = ast.literal_eval(text)
+    json_objs = []
+    for item in list_version:
+        item = item.replace("\n", "")
+
+        try:
+            data = json.loads(item)
+            json_objs.append(data)
+        except Exception as e:
+            print("Error parsing json: ", e)
+            return
+    
+    df = pd.DataFrame(json_objs)
+    df.to_csv(output_file)
