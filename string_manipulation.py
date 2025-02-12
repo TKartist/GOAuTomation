@@ -75,3 +75,4 @@ def output_string_reader(path, output_file):
     
     df = pd.DataFrame(json_objs)
     df.to_csv(output_file)
+

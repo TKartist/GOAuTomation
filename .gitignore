@@ -6,11 +6,9 @@ test_out.py
 
 # txt files to ignore
 secret_info.txt
-summary_file.txt
 
 # ignore secret info extractor
 info_withdrawl.py
 
-*.csv
 
 .env

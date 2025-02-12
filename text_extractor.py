@@ -21,18 +21,12 @@ def extract_text_from_pdf(pdf_path):
 def pdf_to_text(pdf_path):
     doc = fitz.open(pdf_path)
     bucket = []
-    pprev, prev, bucket = "", "", []
     
     for page_num, page in enumerate(doc):
 
         for word in page.get_text("words"):
             x0, y0, x1, y1, text = word[:5]
             bucket.append([page_num, int(x0), int(y0), int(x1) - int(x0), int(y1) - int(y0), text])
-            if f"{prev} {text}" == "Contact Information" or f"{pprev} {prev} {text}" == "How we work":
-                doc.close()
-                return bucket[:-3]        
-            pprev = prev
-            prev = text
     doc.close()
     return bucket
 
