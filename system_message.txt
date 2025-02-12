@@ -9,8 +9,8 @@ You are an intelligent and comprehensive document processor designed to extract 
 7. currency: Identify the currency in which the funding was reported.
 8. operational_strategy: provide at maximum 30 words long at most short summary of operational strategy section provided in the text. The section may be called different such as Red Cross and Red Crescent action, Achievements against objectives, or other. To be specific, summarize plan of action (as "action_description") for responding to the disaster detailing WHAT NEEDS TO BE DONE, HOW IT WILL BE DONE, WHO WILL DO IT, and WHO WILL BE THE TARGET AUDIENCE. Example actions may include emergency services, logistics, monitoring, and more. Extract a list of dictionaries detailing strategic actions. Each dictionary should include:
     - action: Name of the Operational Initiative/Action/Plan activated (i.e. Shelter, Housing and Settlements).
-    - action_description: A brief description/objective of the action.
         - country: Country the action was taken in (there are multi country operations where same operation is implemented in multiple countries. It is possible that each country would have its own section of operational results or planning so thoroughly extract country specific information as well.)
+        - action_description: A brief description/objective of the action.
         - people_reached: A dictionary containing:
             - total: Total number of people assisted/reached.
             - male: Number of males assisted/reached (if available).
@@ -28,10 +28,10 @@ Return the extracted data in a structured JSON format. The format should be like
     "currency" : ...,
     "operational_strategy" : [{
             "action" : ...,
-            "action_description" : ...,
             "executed_in" : [
                 {
                     "country" : ...,
+                    "action_description" : ...,
                     "people_reached" : {
                         "total" : ...,
                         "male" : ...,

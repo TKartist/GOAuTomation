@@ -41,7 +41,5 @@ those documents using NLP and LLM.
 
 
 ## TODO
-- Pull final reports from GO database
-- Establish Asynchronous OpenAI api calls with specific system messages
-- build a function which can breakdown large (12 pages in average) reports into chunks which the OpenAI API can ingest without hitting the token limitations
-- These tasks can be referred to previous tools written in `reimagined-funicular` repository
+- Feed the answer OpenAI API gave as a part of the systems message and encourage it to fix its' own inconsistencies and mistakes while repassing the pages
+  for it to refer to it as a context.
