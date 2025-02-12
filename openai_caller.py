@@ -3,19 +3,28 @@ from info_withdrawl import secret_extraction
 import os
 
 
-def collect_system_message():
+def collect_system_message(address):
     system_message = "You are a very helpful assistant"
     try:
-        with open("system_message.txt", "r") as f:
+        with open(address, "r") as f:
             system_message = f.read()
             f.close()
     except Exception as e:
         print("Error while reading the stored system message: ", e)
     return system_message
-        
+
+
 
 async def conversation(pages):
-    system_message = " ".join(collect_system_message().split("\n"))
+    system_message = " ".join(collect_system_message("system_message.txt").split("\n"))
+    initial_iteration =  call_openai(pages, system_message)
+    system_message = f"{initial_iteration}\n{" ".join(collect_system_message("correcting_system_message.txt").split("\n"))}"
+    new_iteration = call_openai(pages, system_message)
+    return new_iteration
+
+
+
+async def call_openai(pages, system_message):
     secrets = secret_extraction()
     prompt = [{
         "role" : "system",
