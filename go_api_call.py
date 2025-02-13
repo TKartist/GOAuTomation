@@ -4,6 +4,8 @@ import ast
 from datetime import datetime
 
 FINAL = "final"
+CONTRIBUTIONS = "contributions"
+DONOR = "donor"
 
 def collect_appeals(gt_date):
     base_url = "https://goadmin.ifrc.org/"
@@ -19,7 +21,7 @@ def collect_appeals(gt_date):
             bucket = res.json()
             appeals_list += bucket["results"]
             link = bucket["next"]
-            parameters = None
+            params = None
     
     except req.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
@@ -29,9 +31,15 @@ def collect_appeals(gt_date):
         print ("Timeout Error:",errt)
     except req.exceptions.RequestException as err:
         print ("Oops: Something Else", err)
+    
+    df = pd.DataFrame(appeals_list)
+    df.set_index("code", inplace=True)
+    df.to_csv(f"appeals_from_{gt_date.year}_{gt_date.month}_{gt_date.day}.csv")
+    return df
 
 
 def collect_appeals_docs(gt_date):
+    appeals_df = collect_appeals(gt_date)
     base_url = "https://goadmin.ifrc.org/"
     api_endpoint = "api/v2/appeal_document/"
     parameters = {"created_at__gt": gt_date}
@@ -59,14 +67,26 @@ def collect_appeals_docs(gt_date):
     
     to_save = {}
 
-    # saves only the most recent documents of the appeal
+    # saves most recent doc when
     for doc in doc_list:
+        if doc["appeal"]["code"] not in appeals_df.index:
+            continue
+        if "type" in doc:
+            desc = f"{doc["type"]} {doc["description"]} {doc["name"]}".lower()
+        else:
+            desc = f"{doc["description"]} {doc["name"]}".lower()
+
         if doc["appeal"]["code"] in to_save:
-            if doc["created_at"] > to_save[doc["appeal"]["code"]]["created_at"]:
-                to_save[doc["appeal"]["code"]] = doc
+            if appeals_df["status_display"][doc["appeal"]["code"]] == "Active" and CONTRIBUTIONS not in desc and DONOR not in desc:
+                if doc["created_at"] < to_save[doc["appeal"]["code"]]["created_at"]:
+                    to_save[doc["appeal"]["code"]] = doc
+            elif appeals_df["status_display"][doc["appeal"]["code"]] == "Closed" and CONTRIBUTIONS not in desc and DONOR not in desc:
+                if doc["created_at"] > to_save[doc["appeal"]["code"]]["created_at"]:
+                    to_save[doc["appeal"]["code"]] = doc
         else:
             to_save[doc["appeal"]["code"]] = doc
-    
+            
+
     concat_docs = []
     for val in to_save.values():
         concat_docs.append(val)
@@ -99,9 +119,6 @@ def main():
     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
     df = df.fillna("")
     for _, row in df.iterrows():
-        descs = f"{row["type"]} {row["description"]} {row["name"]}".lower()
-        if FINAL not in descs:
-            continue
         link = row["document_url"]
         title = ast.literal_eval(row["appeal"])["code"]
         if link == "":
