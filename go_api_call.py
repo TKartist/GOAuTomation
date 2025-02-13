@@ -1,10 +1,34 @@
 import requests as req
 import pandas as pd
 import ast
-import math
 from datetime import datetime
 
 FINAL = "final"
+
+def collect_appeals(gt_date):
+    base_url = "https://goadmin.ifrc.org/"
+    api_endpoint = "api/v2/appeal/"
+    params = {"start_date__gt" : gt_date}
+    appeals_list = []
+    link = base_url + api_endpoint
+
+    try:
+        while link != None:
+            print(f"Calling {link}...")
+            res = req.get(link, params=params)
+            bucket = res.json()
+            appeals_list += bucket["results"]
+            link = bucket["next"]
+            parameters = None
+    
+    except req.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except req.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except req.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except req.exceptions.RequestException as err:
+        print ("Oops: Something Else", err)
 
 
 def collect_appeals_docs(gt_date):

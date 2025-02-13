@@ -64,6 +64,8 @@ def output_string_reader(path, output_file):
     list_version = ast.literal_eval(text)
     json_objs = []
     for item in list_version:
+        item = "{" + "{".join(item.split("{")[1:])
+        item = "}".join(item.split("}")[:-1]) + "}"
         item = item.replace("\n", "")
 
         try:
