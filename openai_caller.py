@@ -17,41 +17,35 @@ def collect_system_message(address):
 
 async def conversation(pages):
     system_message = " ".join(collect_system_message("system_message.txt").split("\n"))
-    initial_iteration =  call_openai(pages, system_message)
-    system_message = f"{initial_iteration}\n{" ".join(collect_system_message("correcting_system_message.txt").split("\n"))}"
-    new_iteration = call_openai(pages, system_message)
+    initial_iteration =  await call_openai(pages, system_message)
+    system_message = f"{" ".join(collect_system_message("correcting_system_message.txt").split("\n"))}\n{initial_iteration}"
+    new_iteration = await call_openai(pages, system_message)
     return new_iteration
 
 
 
 async def call_openai(pages, system_message):
     secrets = secret_extraction()
-    prompt = [{
-        "role" : "system",
-        "content" : system_message
-    }]
     deployment_name = secrets["Deployment name"]
-    client = openai.AsyncAzureOpenAI(
+
+    messages = [
+        {"role": "system", "content": system_message}
+    ] + [{"role": "user", "content": str(page)} for page in pages] 
+
+    messages.append({"role": "user", "content": "ALL GOOD, PLEASE ANSWER THE QUESTION"})
+
+    async with openai.AsyncAzureOpenAI(
         api_key=os.environ.get("OPENAI_API_KEY"),
         azure_endpoint="https://ifrcorg-go.openai.azure.com/",
         api_version="2024-10-21"
-    )
-    for page in pages:
-        prompt.append({
-            "role" : "user",
-            "content" : str(page)
-        })
-    prompt.append({
-        "role" : "user",
-        "content" : "ALL GOOD, PLEASE ANSWER THE QUESTION"
-    })
-    response = await client.chat.completions.create(
-        model=deployment_name,
-        messages=prompt,
-        temperature=0.5
-    )
-    out = response.choices[0].message.content
-    return out
+    ) as client:
+        response = await client.chat.completions.create(
+            model=deployment_name,
+            messages=messages,
+            temperature=0.5
+        )
+
+    return response.choices[0].message.content
         
 
 

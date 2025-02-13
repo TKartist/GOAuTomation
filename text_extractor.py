@@ -39,11 +39,12 @@ matching height and y0 positional value; it should significantly reduce unnecess
 '''
 
 def organize_bucket(bucket):
-    cur_y0, p, l, new_bucket, page = 0, 0, len(bucket), [[]], 0
+    cur_y0, p, l, page = 0, 0, len(bucket), 0
+    pages = bucket[l - 1][0]
+    new_bucket = [[] for _ in range(pages + 1)]
     while (p < l):
         if cur_y0 != bucket[p][2]:
             if page != bucket[p][0]:
-                new_bucket.append([])
                 page = bucket[p][0]
             new_bucket[page].append([[bucket[p][1]], bucket[p][2],bucket[p][4], bucket[p][5]])
             cur_y0 = bucket[p][2]

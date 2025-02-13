@@ -35,7 +35,7 @@ def summarize(filename):
     except Exception as e:
         print(f"Found an error while loading {filename} to pass to OpenAI API:\n{e}")
         return
-    doc_summary = asyncio.run(conversation(pages))
+    doc_summary = asyncio.get_event_loop().run_until_complete(conversation(pages))
     return doc_summary
 
 
