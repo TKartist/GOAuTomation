@@ -9,8 +9,13 @@ import pandas as pd
 
 def convert_pdf_to_text():
     pdf_list = os.listdir("document_folder")
+    txt_list = os.listdir("output2")
     for pdf in pdf_list:
+        if f"{pdf.split(".")[0]}.txt" in txt_list:
+            continue
         bucket = pdf_to_text(f"document_folder/{pdf}")
+        if bucket == []:
+            continue
         new_bucket = organize_bucket(bucket)
         filename = pdf.split(".")[0]
         with open(f"output/{filename}.txt", "w") as f:

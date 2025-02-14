@@ -2,6 +2,7 @@ import requests as req
 import pandas as pd
 import ast
 from datetime import datetime
+import os
 
 FINAL = "final"
 CONTRIBUTIONS = "contributions"
@@ -77,12 +78,8 @@ def collect_appeals_docs(gt_date):
             desc = f"{doc["description"]} {doc["name"]}".lower()
 
         if doc["appeal"]["code"] in to_save:
-            if appeals_df["status_display"][doc["appeal"]["code"]] == "Active" and CONTRIBUTIONS not in desc and DONOR not in desc:
-                if doc["created_at"] < to_save[doc["appeal"]["code"]]["created_at"]:
-                    to_save[doc["appeal"]["code"]] = doc
-            elif appeals_df["status_display"][doc["appeal"]["code"]] == "Closed" and CONTRIBUTIONS not in desc and DONOR not in desc:
-                if doc["created_at"] > to_save[doc["appeal"]["code"]]["created_at"]:
-                    to_save[doc["appeal"]["code"]] = doc
+            if CONTRIBUTIONS not in desc and DONOR not in desc and doc["created_at"] > to_save[doc["appeal"]["code"]]["created_at"]:
+                to_save[doc["appeal"]["code"]] = doc
         else:
             to_save[doc["appeal"]["code"]] = doc
             
@@ -97,6 +94,9 @@ def collect_appeals_docs(gt_date):
 
 
 def collect_appeals_pdf(title, link):
+    docs = os.listdir("document_folder")
+    if f"{title}.pdf" in docs:
+        return
     try:
         res = req.get(link)
         if res.status_code == 200:

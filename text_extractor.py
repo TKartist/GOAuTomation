@@ -1,6 +1,40 @@
 import pdfplumber
 import fitz
 import ast
+import requests as req
+
+def get_older_file(mdrcode, iteration):
+    base_url = "https://goadmin.ifrc.org/"
+    api_endpoint = "api/v2/appeal_document/"
+    parameters = {"search": mdrcode}
+    link = base_url + api_endpoint
+
+    try:
+        res = req.get(link, params=parameters)
+        bucket = res.json()
+        if iteration == (len(bucket) - 2):
+            return []
+        doc_ele = bucket["results"][:- iteration]
+        doc_link = ""
+        if "document" in doc_ele:
+            doc_link += doc_ele["document"]
+        if "document_url" in doc_ele:
+            doc_link += doc_ele["document_url"]
+        res = req.get(link)
+        if res.status_code == 200:
+            with open(f"document_folder/{mdrcode}.pdf", "wb") as f:
+                f.write(res.content)
+                f.close()
+            doc = fitz.open(f"document_folder/{mdrcode}.pdf")
+        else:
+            print(f"Failed fetching the data from {link}: {res.status_code}")
+            doc = get_older_file(mdrcode, iteration + 1)
+    except Exception as e:
+        print(e)
+        doc = get_older_file(mdrcode, iteration + 1)
+    return doc
+    
+''''''
 
 def extract_text_from_pdf(pdf_path):
     text = ''
@@ -17,11 +51,16 @@ def extract_text_from_pdf(pdf_path):
         print("Error occured: ", e)
     return text
 
+''''''
 
 def pdf_to_text(pdf_path):
-    doc = fitz.open(pdf_path)
-    bucket = []
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as e:
+        print(f"Error loading {pdf_path}: {e}")
+        doc = get_older_file(pdf_path.split("/")[1].split(".")[0], 1)
     
+    bucket = []
     for page_num, page in enumerate(doc):
 
         for word in page.get_text("words"):
