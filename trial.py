@@ -3,44 +3,50 @@ import pandas as pd
 import ast
 from datetime import datetime
 import os
+import json
 
-z = os.listdir("document_folder")
-print(len(z))
-# FINAL = "final"
+df = pd.read_csv("first_batch.csv")
+appeal_df = pd.read_csv("final_reports_from_2022_12_1.csv")
+appeal_df["appeal"] = appeal_df["appeal"].apply(ast.literal_eval)
+appeal_df = appeal_df.fillna("")
 
-# def collect_appeals_docs(gt_date):
-#     base_url = "https://goadmin.ifrc.org/"
-#     api_endpoint = "api/v2/appeal/"
-#     parameters = {"start_date__gt": gt_date}
-#     doc_list = []
-#     link = base_url + api_endpoint
+l = []
+for _, row in appeal_df.iterrows():
+    l.append(row["appeal"]["code"])
 
-#     try:
-#         while link != None:
-#             print(f"Calling {link}...")
-#             res = req.get(link, params=parameters)
-#             bucket = res.json()
-#             doc_list += bucket["results"]
-#             link = bucket["next"]
-#             parameters = None
-                
+appeal_df["op_code"] = l
+appeal_df.set_index("op_code", inplace=True)
+df["operational_strategy"] = df["operational_strategy"].apply(ast.literal_eval)
 
-#     except req.exceptions.HTTPError as errh:
-#         print ("Http Error:",errh)
-#     except req.exceptions.ConnectionError as errc:
-#         print ("Error Connecting:",errc)
-#     except req.exceptions.Timeout as errt:
-#         print ("Timeout Error:",errt)
-#     except req.exceptions.RequestException as err:
-#         print ("OOps: Something Else", err)
-#     df = pd.DataFrame(doc_list)
-#     df.set_index("code", inplace=True)
-#     df.to_csv("appeals.csv")
-    
-    
-    
-# year = 2025
-# month = 1
-# day = 1
-# gt_date = datetime(year, month, day, 0, 0, 0)
-# collect_appeals_docs(gt_date=gt_date)
+list = []
+
+for _, row in df.iterrows():
+    code = row["doc_number"][:8]
+    val = {
+        "op_code" : code,
+    }
+    val["link"] = appeal_df["document"][code] + appeal_df["document_url"][code]
+    val["name"] = appeal_df["appeal"][code]["event"]["name"]
+    val["start_date"] = appeal_df["appeal"][code]["event"]["start_date"]
+    val["region"] = row["region_of_disaster"]
+    val["assisted"] = row["total_count"]
+    disag = ""
+    for strat in row["operational_strategy"]:
+        for action in strat["executed_in"]:
+            male = 0
+            female = 0
+            total = 0
+            if "people_reached" not in action or action["people_reached"] == None or ("male" not in action["people_reached"] and "female" not in action["people_reached"]):
+                continue
+            if "male" in action["people_reached"]:
+                male = action["people_reached"]["male"]
+            if "female" in action["people_reached"]:
+                female = action["people_reached"]["female"]
+            total = male + female
+            disag += f"{strat["action"]} action helped total of {total} people in {action["country"]}; Where {male} were men, and {female} were women.\n"
+    val["disaggregation (strategy specific)"] = disag
+    list.append(val)
+
+output = pd.DataFrame(list)
+output.set_index("op_code", inplace=True)
+output.to_excel("sex_disaggregation_from_2022_12_1.xlsx", index="op_code")

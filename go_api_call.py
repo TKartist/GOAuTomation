@@ -111,7 +111,7 @@ def collect_appeals_pdf(title, link):
 
 def main():
     year = 2022
-    month = 1
+    month = 12
     day = 1
     gt_date = datetime(year, month, day, 0, 0, 0)
     collect_appeals_docs(gt_date=gt_date)
