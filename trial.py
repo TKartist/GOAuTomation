@@ -12,6 +12,8 @@ def aggregate_appeal_information():
     appeal_df["appeal"] = appeal_df["appeal"].apply(ast.literal_eval)
     appeal_df = appeal_df.fillna("")
 
+    ap_df = pd.read_csv("appeals_from_2022_12_1.csv", index_col="code")
+    ap_df["country"] = ap_df["country"].apply(ast.literal_eval)
     op_code_list = []
     for _, row in appeal_df.iterrows():
         op_code_list.append(row["appeal"]["code"])
@@ -20,7 +22,7 @@ def aggregate_appeal_information():
     appeal_df.set_index("op_code", inplace=True)
     df["operational_strategy"] = df["operational_strategy"].apply(ast.literal_eval)
 
-    list = []
+    sheet_one = []
 
     for _, row in df.iterrows():
         code = row["doc_number"][:8]
@@ -28,8 +30,19 @@ def aggregate_appeal_information():
             "mdrcode" : code,
         }
         val["name"] = appeal_df["appeal"][code]["event"]["name"]
-        # val["country"] = 
+        val["country"] = ap_df["country"][code]["name"]
+        val["appeal type"] = ap_df["atype_display"][code]
+        val["start_date"] = str(ap_df["start_date"][code])[:10]
+        val["funding_requested"] = ap_df["amount_requested"][code]
+        val["funding_received"] = ap_df["amount_funded"][code]
+        val["num_beneficiaries"] = ap_df["num_beneficiaries"][code]
+        if ap_df["status_display"] == "Closed":
+            val["document_type"] = "Final Report"
+        else:
+            val["document_type"] = "DREF Operations"
         val["link"] = appeal_df["document"][code] + appeal_df["document_url"][code]
+
+        sheet_one.append(val)
         val["start_date"] = appeal_df["appeal"][code]["event"]["start_date"]
         val["region"] = row["region_of_disaster"]
         val["assisted"] = row["total_count"]
@@ -50,7 +63,9 @@ def aggregate_appeal_information():
         val["disaggregation (strategy specific)"] = disag
         list.append(val)
 
-    output = pd.DataFrame(list)
-    output.set_index("op_code", inplace=True)
-    output.to_excel("sex_disaggregation_from_2022_12_1.xlsx", index="op_code")
+    output_one = pd.DataFrame(sheet_one)
+    output_one.set_index("op_code", inplace=True)
+    with pd.ExcelWriter("disaggregation.xlsx", engine='xlsxwriter') as writer:
+        output_one.to_excel(writer, sheet_name='appeal_list', index=False)
+        # df2.to_excel(writer, sheet_name='aggregation', index=False)
 

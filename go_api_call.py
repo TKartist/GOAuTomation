@@ -78,7 +78,7 @@ def collect_appeals_docs(gt_date):
             desc = f"{doc["description"]} {doc["name"]}".lower()
 
         if doc["appeal"]["code"] in to_save:
-            if CONTRIBUTIONS not in desc and DONOR not in desc and doc["created_at"] > to_save[doc["appeal"]["code"]]["created_at"]:
+            if CONTRIBUTIONS not in desc and DONOR not in desc and doc["created_at"] >= to_save[doc["appeal"]["code"]]["created_at"]:
                 to_save[doc["appeal"]["code"]] = doc
         else:
             to_save[doc["appeal"]["code"]] = doc

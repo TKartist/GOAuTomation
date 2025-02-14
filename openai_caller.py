@@ -42,7 +42,7 @@ async def call_openai(pages, system_message):
         response = await client.chat.completions.create(
             model=deployment_name,
             messages=messages,
-            temperature=0.5
+            temperature=0.3
         )
 
     return response.choices[0].message.content

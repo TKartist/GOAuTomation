@@ -15,6 +15,10 @@ You are an intelligent and comprehensive document processor designed to extract 
             - total: Total number of people assisted/reached.
             - male: Number of males assisted/reached (if available).
             - female: Number of females assisted/reached (if available).
+        - people_targeted: A dictionary containing:
+            - total: Total number of people targeted to assist/reach.
+            - male: Number of males targeted to assist/reach (if available).
+            - female: Number of females targeted to assist/reach (if available).
         - funding_used: The amount of funding used or planned to be used for this specific operational strategy in this country.
     - total_action_funding: The total amount of funding used or planned to be used for this specific operational strategy.
 Return the extracted data in a structured JSON format. The format should be like this:
@@ -33,6 +37,11 @@ Return the extracted data in a structured JSON format. The format should be like
                     "country" : ...,
                     "action_description" : ...,
                     "people_reached" : {
+                        "total" : ...,
+                        "male" : ...,
+                        "female" : ...,
+                    },
+                    "people_targeted" : {
                         "total" : ...,
                         "male" : ...,
                         "female" : ...,

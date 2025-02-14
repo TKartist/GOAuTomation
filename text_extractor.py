@@ -13,6 +13,7 @@ def get_older_file(mdrcode, iteration):
         res = req.get(link, params=parameters)
         bucket = res.json()
         if iteration == (len(bucket) - 2):
+            print("Failed fetching")
             return []
         doc_ele = bucket["results"][:- iteration]
         doc_link = ""
@@ -66,7 +67,7 @@ def pdf_to_text(pdf_path):
         for word in page.get_text("words"):
             x0, y0, x1, y1, text = word[:5]
             bucket.append([page_num, int(x0), int(y0), int(x1) - int(x0), int(y1) - int(y0), text])
-    doc.close()
+    
     return bucket
 
 

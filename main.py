@@ -21,6 +21,7 @@ def convert_pdf_to_text():
         with open(f"output/{filename}.txt", "w") as f:
             f.write(str(new_bucket))
             f.close()
+    print("Completed Conversion to Text Files")
     
 
 def check_update():
