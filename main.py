@@ -59,7 +59,7 @@ def main():
     Read documents from 'document_folder' and convert the pdf files to html
     proceed to organize them and store them in output folder
     '''
-    convert_pdf_to_text()
+    # convert_pdf_to_text()
     files = os.listdir("output")
     outputs = []
     for file in files:
