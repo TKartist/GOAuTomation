@@ -64,7 +64,7 @@ def main():
     outputs = []
     for file in files:
         outputs.append(summarize(f"output/{file}"))
-    with open("summary_file.txt", "w") as f:
+    with open("output_files/summary_file.txt", "w") as f:
         f.write(str(outputs))
         f.close()
     print("ALL FILES SUMMARIZED")

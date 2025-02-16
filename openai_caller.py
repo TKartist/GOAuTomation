@@ -6,7 +6,7 @@ import os
 def collect_system_message(address):
     system_message = "You are a very helpful assistant"
     try:
-        with open(address, "r") as f:
+        with open(f"system_messages/{address}", "r") as f:
             system_message = f.read()
             f.close()
     except Exception as e:
