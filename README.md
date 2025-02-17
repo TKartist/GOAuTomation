@@ -13,12 +13,13 @@ those documents using NLP and LLM.
 
 - [Overview](#overview)
 - [Installation](#installation)
+- [Execution] (#execution)
 - [Usage](#usage)
 - [Features](#features)
 - [License](#license)
 - [Contact](#contact)
 - [TODO](#todo)
-
+- [OUTPUT](#output)
 ---
 
 ## Installation
@@ -27,6 +28,22 @@ those documents using NLP and LLM.
    ```bash
    git clone git@github.com:TKartist/GOAuTomation.git
    ```
+2. Install dependencies:
+  ```bash
+   pip install pandas
+   pip install fitz
+   pip install openai
+   ```
+
+## Execution
+  ```bash
+   cd GOAutomation
+   python main.py
+   ```
+   - Make sure you are in the `GOAutomation` folder by using `cd` and run the `main.py` file
+   - The following flow chart shows the flow of the code execution
+![Project Screenshot](img_files/flowchart.png)
+
 
 ## Usage
 - the `quantitative_context_extraction()` of the string_manipulation file is focused specifically on numerical data extraction
@@ -37,9 +54,25 @@ those documents using NLP and LLM.
 - Sending asynchronous call to OpenAI API with designated system message and multiple chunks of user message
 
 ## Features
+- Data extraction from GO platform
+- PDF -> .txt file containing phrases with their coordinates
+- Asynchronous feeding of the string information to the OpenAI API
+- Extraction of information in a uniformed format
+- Refining the answer through passing the string again
+- Parsing and storing of OpenAI API response
+- Generation of structured dataset from all available information
+- Auto-handling of generic errors
 
 
 
 ## TODO
-- Feed the answer OpenAI API gave as a part of the systems message and encourage it to fix its' own inconsistencies and mistakes while repassing the pages
-  for it to refer to it as a context.
+- Establish one command execution of the process
+- File and code reformating
+- Reduce the token usage (filtering unnecessary information, and output reduction)
+
+
+## OUTPUT
+![Project Screenshot](img_files/scrap_go.png)
+- DREF/EA report aggregation
+![Project Screenshot](img_files/disaggregation.png)
+- Sex disaggregation of people assisted through operational strategies carried out during DREF and EA missions
