@@ -1,5 +1,5 @@
 # ignore all folders
-*/
+
 
 # ignore testing files
 test_out.py
