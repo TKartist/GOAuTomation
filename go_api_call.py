@@ -1,18 +1,24 @@
-import requests as req
+import requests
 import pandas as pd
 import ast
 from datetime import datetime
 import os
+from dotenv import load_dotenv
 
 FINAL = "final"
 CONTRIBUTIONS = "contributions"
 DONOR = "donor"
-base_url = "https://goadmin.ifrc.org/"
+base_url = "https://goadmin.ifrc.org"
+load_dotenv()
 
 
 
 def collect_dref_final_reports():
-    api_endpoint = "api/v2/dref-final-report/"
+    GO_API_KEY = os.getenv("GO_API_KEY")
+    headers = {
+        "Authorization" : f"Token {GO_API_KEY}",
+    }
+    api_endpoint = "/api/v2/dref-final-report/"
     '''
         Refer to 'planned_interventions' key for specific details
     '''
@@ -21,33 +27,33 @@ def collect_dref_final_reports():
     try:
         while link != None:
             print(f"Calling {link}...")
-            res = req.get(link)
+            res = requests.get(link, headers=headers)
             if res.status_code == 200:
                 bucket = res.json()
-                print(bucket)
                 temp = bucket["results"]
                 for item in temp:
                     final_report_details.append({
                         "mdrcode" : item["appeal_code"],
-                        "actions" : item["planned_intervventions"]
+                        "actions" : item["planned_interventions"]
                     })
                 link = bucket["next"]
             else:
                 print("Invalid response statuse code received: ", res.status_code)
                 return
     
-    except req.exceptions.HTTPError as errh:
+    except requests.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
-    except req.exceptions.ConnectionError as errc:
+    except requests.exceptions.ConnectionError as errc:
         print ("Error Connecting:",errc)
-    except req.exceptions.Timeout as errt:
+    except requests.exceptions.Timeout as errt:
         print ("Timeout Error:",errt)
-    except req.exceptions.RequestException as err:
+    except requests.exceptions.RequestException as err:
         print ("Oops: Something Else", err)
     
     final_reports = pd.DataFrame(final_report_details)
     final_reports.set_index("mdrcode", inplace=True)
-    final_reports.to_csv("csv_files/final_report_details.py", index=True)
+    
+    final_reports.to_csv("csv_files/final_report_details.csv", index=True)
     
     
 
@@ -61,7 +67,7 @@ def collect_appeals(gt_date):
     try:
         while link != None:
             print(f"Calling {link}...")
-            res = req.get(link, params=params)
+            res = requests.get(link, params=params)
             if res.status_code == 200:
                 bucket = res.json()
                 appeals_list += bucket["results"]
@@ -71,13 +77,13 @@ def collect_appeals(gt_date):
                 print("Invalid response statuse code received: ", res.status_code)
                 return
             
-    except req.exceptions.HTTPError as errh:
+    except requests.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
-    except req.exceptions.ConnectionError as errc:
+    except requests.exceptions.ConnectionError as errc:
         print ("Error Connecting:",errc)
-    except req.exceptions.Timeout as errt:
+    except requests.exceptions.Timeout as errt:
         print ("Timeout Error:",errt)
-    except req.exceptions.RequestException as err:
+    except requests.exceptions.RequestException as err:
         print ("Oops: Something Else", err)
     
     df = pd.DataFrame(appeals_list)
@@ -88,7 +94,6 @@ def collect_appeals(gt_date):
 
 def collect_appeals_docs(gt_date):
     appeals_df = collect_appeals(gt_date)
-    base_url = "https://goadmin.ifrc.org/"
     api_endpoint = "api/v2/appeal_document/"
     parameters = {"created_at__gt": gt_date}
     doc_list = []
@@ -97,7 +102,7 @@ def collect_appeals_docs(gt_date):
     try:
         while link != None:
             print(f"Calling {link}...")
-            res = req.get(link, params=parameters)
+            res = requests.get(link, params=parameters)
             if res.status_code == 200:
                 bucket = res.json()
                 doc_list += bucket["results"]
@@ -107,13 +112,13 @@ def collect_appeals_docs(gt_date):
                 print("Invalid response statuse code received: ", res.status_code)
                 return
             
-    except req.exceptions.HTTPError as errh:
+    except requests.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
-    except req.exceptions.ConnectionError as errc:
+    except requests.exceptions.ConnectionError as errc:
         print ("Error Connecting:",errc)
-    except req.exceptions.Timeout as errt:
+    except requests.exceptions.Timeout as errt:
         print ("Timeout Error:",errt)
-    except req.exceptions.RequestException as err:
+    except requests.exceptions.RequestException as err:
         print ("OOps: Something Else", err)
     
     to_save = {}
@@ -148,7 +153,7 @@ def collect_appeals_pdf(title, link):
     if f"{title}.pdf" in docs:
         return
     try:
-        res = req.get(link)
+        res = requests.get(link)
         if res.status_code == 200:
             with open(f"{title}.pdf", "wb") as f:
                 f.write(res.content)
@@ -158,30 +163,29 @@ def collect_appeals_pdf(title, link):
     except Exception as e:
         print(f"Error found: ", e)
 
+collect_dref_final_reports()
 
-# collect_dref_final_reports()
 
+# def main():
+#     year = 2022
+#     month = 12
+#     day = 1
+#     gt_date = datetime(year, month, day, 0, 0, 0)
+#     collect_appeals_docs(gt_date=gt_date)
 
-def main():
-    year = 2022
-    month = 12
-    day = 1
-    gt_date = datetime(year, month, day, 0, 0, 0)
-    collect_appeals_docs(gt_date=gt_date)
-
-    df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
-    df = df.fillna("")
-    for _, row in df.iterrows():
-        link = row["document_url"]
-        title = ast.literal_eval(row["appeal"])["code"]
-        if link == "":
-            link = row["document"]
-        collect_appeals_pdf(f"document_folder/{title}", link)
+#     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
+#     df = df.fillna("")
+#     for _, row in df.iterrows():
+#         link = row["document_url"]
+#         title = ast.literal_eval(row["appeal"])["code"]
+#         if link == "":
+#             link = row["document"]
+#         collect_appeals_pdf(f"document_folder/{title}", link)
     
 
     
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 

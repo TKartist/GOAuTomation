@@ -103,3 +103,96 @@ def aggregate_appeal_information():
     with pd.ExcelWriter("csv_files/disaggregation.xlsx", engine='xlsxwriter') as writer:
         output_one.to_excel(writer, sheet_name='appeal_list')
         output_two.to_excel(writer, sheet_name='aggregation', index=False)
+
+
+
+def verify_extract():
+    df = pd.read_csv("csv_files/concat_batch.csv", index_col="doc_number")
+    df["operational_strategy"] = df["operational_strategy"].apply(ast.literal_eval)
+
+    df2 = pd.read_csv("csv_files/final_report_details.csv", index_col="mdrcode")
+    df2["actions"] = df2["actions"].apply(ast.literal_eval)
+    ind = df2.index
+    l = []
+    for i in ind:
+        if i not in df.index:
+            continue
+        extract_list = []
+        record_list = []
+
+        for op in df["operational_strategy"][i]:
+            for action in op["executed_in"]:
+                extract_list.append({
+                    "mdrcode" : i,
+                    "action (extracted)" : op.get("action", ""),
+                    "total_reached (extracted)" : (action and action.get("people_reached", {}) or {}).get("total", 0),  
+                    "total_male (extracted)" : (action and action.get("people_reached", {}) or {}).get("male", 0),  
+                    "total_female (extracted)" : (action and action.get("people_reached", {}) or {}).get("female", 0),
+                    "fund (extracted)" : action.get("funding_used", 0),  
+                })
+        for list in df2["actions"][i]:
+            record_list.append({
+                "mdrcode" : i,
+                "action (doc)" : list.get("title_display", ""),
+                "total_reached (doc)" : list.get("person_assisted", 0),
+                "total_male (doc)" : list.get("male", 0),
+                "total_female (doc)" : list.get("female", 0),
+                "fund (doc)" : list.get("budget", 0),
+            })
+        sorted_extracted_list = sorted(extract_list, key=lambda x: x["action (extracted)"])
+        sorted_record_list = sorted(record_list, key=lambda x: x["action (doc)"])
+        length = 0
+        if len(sorted_extracted_list) > len(sorted_record_list):
+            length = len(sorted_record_list)
+        else:
+            length = len(sorted_extracted_list)
+        for j in range(length):
+            l.append({
+                "mdrcode" : i,
+                "action (extracted)" : sorted_extracted_list[j]["action (extracted)"],
+                "total_reached (extracted)" : sorted_extracted_list[j]["total_reached (extracted)"],
+                "total_male (extracted)" : sorted_extracted_list[j]["total_male (extracted)"],
+                "total_female (extracted)" : sorted_extracted_list[j]["total_female (extracted)"],
+                "fund (extracted)" : sorted_extracted_list[j]["fund (extracted)"],
+                "action (doc)" : sorted_record_list[j]["action (doc)"],
+                "total_reached (doc)" : sorted_record_list[j]["total_reached (doc)"],
+                "total_male (doc)" : sorted_record_list[j]["total_male (doc)"],
+                "total_female (doc)" : sorted_record_list[j]["total_female (doc)"],
+                "fund (doc)" : sorted_record_list[j]["fund (doc)"],
+            })
+        if len(sorted_extracted_list) > len(sorted_record_list):
+            for j in range(length, len(sorted_extracted_list)):
+                l.append({
+                    "mdrcode" : i,
+                    "action (extracted)" : sorted_extracted_list[j]["action (extracted)"],
+                    "total_reached (extracted)" : sorted_extracted_list[j]["total_reached (extracted)"],
+                    "total_male (extracted)" : sorted_extracted_list[j]["total_male (extracted)"],
+                    "total_female (extracted)" : sorted_extracted_list[j]["total_female (extracted)"],
+                    "fund (extracted)" : sorted_extracted_list[j]["fund (extracted)"],
+                    "action (doc)" : "",
+                    "total_reached (doc)" : 0,
+                    "total_male (doc)" : 0,
+                    "total_female (doc)" : 0,
+                    "fund (doc)" : 0,
+
+                })
+        else:
+            for j in range(length, len(sorted_record_list)):    
+                l.append({
+                    "mdrcode" : i,
+                    "action (extracted)" : "",
+                    "total_reached (extracted)" : 0,
+                    "total_male (extracted)" : 0,
+                    "total_female (extracted)" : 0,
+                    "fund (extracted)" : 0,
+                    "action (doc)" : sorted_record_list[j]["action (doc)"],
+                    "total_reached (doc)" : sorted_record_list[j]["total_reached (doc)"],
+                    "total_male (doc)" : sorted_record_list[j]["total_male (doc)"],
+                    "total_female (doc)" : sorted_record_list[j]["total_female (doc)"],
+                    "fund (doc)" : sorted_record_list[j]["fund (doc)"],
+                })
+        df3 = pd.DataFrame(l)
+        with pd.ExcelWriter("csv_files/disags.xlsx", mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
+            df3.to_excel(writer, sheet_name='verification', index=False)
+
+verify_extract()
