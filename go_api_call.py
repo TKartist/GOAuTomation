@@ -7,9 +7,52 @@ import os
 FINAL = "final"
 CONTRIBUTIONS = "contributions"
 DONOR = "donor"
+base_url = "https://goadmin.ifrc.org/"
+
+
+
+def collect_dref_final_reports():
+    api_endpoint = "api/v2/dref-final-report/"
+    '''
+        Refer to 'planned_interventions' key for specific details
+    '''
+    final_report_details = []
+    link = base_url + api_endpoint
+    try:
+        while link != None:
+            print(f"Calling {link}...")
+            res = req.get(link)
+            if res.status_code == 200:
+                bucket = res.json()
+                print(bucket)
+                temp = bucket["results"]
+                for item in temp:
+                    final_report_details.append({
+                        "mdrcode" : item["appeal_code"],
+                        "actions" : item["planned_intervventions"]
+                    })
+                link = bucket["next"]
+            else:
+                print("Invalid response statuse code received: ", res.status_code)
+                return
+    
+    except req.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except req.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except req.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except req.exceptions.RequestException as err:
+        print ("Oops: Something Else", err)
+    
+    final_reports = pd.DataFrame(final_report_details)
+    final_reports.set_index("mdrcode", inplace=True)
+    final_reports.to_csv("csv_files/final_report_details.py", index=True)
+    
+    
+
 
 def collect_appeals(gt_date):
-    base_url = "https://goadmin.ifrc.org/"
     api_endpoint = "api/v2/appeal/"
     params = {"start_date__gt" : gt_date}
     appeals_list = []
@@ -19,11 +62,15 @@ def collect_appeals(gt_date):
         while link != None:
             print(f"Calling {link}...")
             res = req.get(link, params=params)
-            bucket = res.json()
-            appeals_list += bucket["results"]
-            link = bucket["next"]
-            params = None
-    
+            if res.status_code == 200:
+                bucket = res.json()
+                appeals_list += bucket["results"]
+                link = bucket["next"]
+                params = None
+            else:
+                print("Invalid response statuse code received: ", res.status_code)
+                return
+            
     except req.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
     except req.exceptions.ConnectionError as errc:
@@ -51,12 +98,15 @@ def collect_appeals_docs(gt_date):
         while link != None:
             print(f"Calling {link}...")
             res = req.get(link, params=parameters)
-            bucket = res.json()
-            doc_list += bucket["results"]
-            link = bucket["next"]
-            parameters = None
-                
-
+            if res.status_code == 200:
+                bucket = res.json()
+                doc_list += bucket["results"]
+                link = bucket["next"]
+                parameters = None
+            else:
+                print("Invalid response statuse code received: ", res.status_code)
+                return
+            
     except req.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
     except req.exceptions.ConnectionError as errc:
@@ -107,6 +157,9 @@ def collect_appeals_pdf(title, link):
             print(f"Failed fetching the data from {link}: {res.status_code}")
     except Exception as e:
         print(f"Error found: ", e)
+
+
+# collect_dref_final_reports()
 
 
 def main():

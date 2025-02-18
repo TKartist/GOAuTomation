@@ -69,10 +69,14 @@ those documents using NLP and LLM.
 - Establish one command execution of the process
 - File and code reformating
 - Reduce the token usage (filtering unnecessary information, and output reduction)
+- Partially assess the validity of the extracted information through manually constructed DB's `/dref-final-report/` Endpoint
 
 
 ## OUTPUT
-![Project Screenshot](img_files/scrap_go.png)
 - DREF/EA report aggregation
-![Project Screenshot](img_files/disaggregation.png)
+
+![Project Screenshot](img_files/scrap_go.png)
+
 - Sex disaggregation of people assisted through operational strategies carried out during DREF and EA missions
+
+![Project Screenshot](img_files/disaggregation.png)
