@@ -45,21 +45,12 @@ def summarize(filename):
     return doc_summary
 
 
-# def clean_and_save(responses):
-#     for i in range(len(responses)):
-#         responses[i] = responses[i].replace("```json", "").replace("```", "").replace("\n", "")
-#         try:
-#             responses[i] = json.loads(responses[i])
-#         except Exception as e:
-#             print("Error parsing JSON:", e)
-
-
 def main():
     '''
     Read documents from 'document_folder' and convert the pdf files to html
     proceed to organize them and store them in output folder
     '''
-    # convert_pdf_to_text()
+    convert_pdf_to_text()
     files = os.listdir("output")
     outputs = []
     for file in files:

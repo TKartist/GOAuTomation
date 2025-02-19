@@ -62,14 +62,13 @@ those documents using NLP and LLM.
 - Parsing and storing of OpenAI API response
 - Generation of structured dataset from all available information
 - Auto-handling of generic errors
-
+- Compares the extraction results with manually or user-inputted data. (limited and prone to error)
 
 
 ## TODO
 - Establish one command execution of the process
 - File and code reformating
 - Reduce the token usage (filtering unnecessary information, and output reduction)
-- Partially assess the validity of the extracted information through manually constructed DB's `/dref-final-report/` Endpoint
 
 
 ## OUTPUT

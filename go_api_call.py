@@ -163,29 +163,29 @@ def collect_appeals_pdf(title, link):
     except Exception as e:
         print(f"Error found: ", e)
 
-collect_dref_final_reports()
+# collect_dref_final_reports()
 
 
-# def main():
-#     year = 2022
-#     month = 12
-#     day = 1
-#     gt_date = datetime(year, month, day, 0, 0, 0)
-#     collect_appeals_docs(gt_date=gt_date)
+def main():
+    year = 2022
+    month = 12
+    day = 1
+    gt_date = datetime(year, month, day, 0, 0, 0)
+    collect_appeals_docs(gt_date=gt_date)
 
-#     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
-#     df = df.fillna("")
-#     for _, row in df.iterrows():
-#         link = row["document_url"]
-#         title = ast.literal_eval(row["appeal"])["code"]
-#         if link == "":
-#             link = row["document"]
-#         collect_appeals_pdf(f"document_folder/{title}", link)
+    df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
+    df = df.fillna("")
+    for _, row in df.iterrows():
+        link = row["document_url"]
+        title = ast.literal_eval(row["appeal"])["code"]
+        if link == "":
+            link = row["document"]
+        collect_appeals_pdf(f"document_folder/{title}", link)
     
 
     
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
 
