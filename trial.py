@@ -1,34 +1,46 @@
-import ast
-import json
-import pandas as pd
-import requests as req
-
-# with open("output_files/summary_file.txt", "r") as f:
-#     text = f.read()
-#     f.close()
-
-# text = text.replace("```json", "").replace("```", "").replace("\n", " ")
-# list_version = ast.literal_eval(text)
-# json_objs = []
-# for item in list_version:
-#     item = "{" + "{".join(item.split("{")[1:])
-#     item = "}".join(item.split("}")[:-1]) + "}"
-#     item = item.replace("\n", "")
-
-#     try:
-#         data = json.loads(item)
-#         json_objs.append(data)
-#     except Exception as e:
-#         print("Error parsing json: ", e)
-
-# df = pd.DataFrame(json_objs)
-# df.to_csv("csv_files/second_batch.csv")
-
-# df = pd.read_csv("csv_files/first_batch.csv")
-# df_1 = pd.read_csv("csv_files/second_batch.csv")
-# df_2 = pd.concat([df, df_1], ignore_index=True)
-# df_2.to_csv("csv_files/concat_batch.csv", index=False)
+import openai
+from info_withdrawl import secret_extraction
+import os
 
 
-action = {}
-print(action.get("hello", {}).get("good", {}))
+def collect_system_message(address):
+    system_message = "You are a very helpful assistant"
+    try:
+        with open(f"system_messages/{address}", "r") as f:
+            system_message = f.read()
+            f.close()
+    except Exception as e:
+        print("Error while reading the stored system message: ", e)
+    return system_message
+
+async def conversation(pages):
+    system_message = " ".join(collect_system_message("system_message.txt").split("\n"))
+    initial_iteration =  await call_openai(pages, system_message)
+    system_message = f"{" ".join(collect_system_message("correcting_system_message.txt").split("\n"))}\n{initial_iteration}"
+    new_iteration = await call_openai(pages, system_message)
+    return new_iteration
+
+
+
+async def call_openai(pages, system_message):
+    secrets = secret_extraction()
+    deployment_name = secrets["Deployment name"]
+
+    messages = [
+        {"role": "system", "content": system_message}
+    ] + [{"role": "user", "content": str(page)} for page in pages] 
+
+    messages.append({"role": "user", "content": "ALL GOOD, PLEASE ANSWER THE QUESTION"})
+
+    async with openai.AsyncAzureOpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
+        azure_endpoint="https://ifrcorg-go.openai.azure.com/",
+        api_version="2024-10-21"
+    ) as client:
+        response = await client.chat.completions.create(
+            model=deployment_name,
+            messages=messages,
+            temperature=0.3
+        )
+
+    return response.choices[0].message.content
