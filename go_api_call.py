@@ -30,13 +30,13 @@ def collect_dref_final_reports():
             res = requests.get(link, headers=headers)
             if res.status_code == 200:
                 bucket = res.json()
-                temp = bucket["results"]
-                for item in temp:
-                    final_report_details.append({
-                        "mdrcode" : item["appeal_code"],
-                        "actions" : item["planned_interventions"]
-                    })
-                link = bucket["next"]
+                final_report_details = bucket["results"]
+                # for item in temp:
+                #     final_report_details.append({
+                #         "mdrcode" : item["appeal_code"],
+                #         "actions" : item["planned_interventions"]
+                #     })
+                link = None
             else:
                 print("Invalid response statuse code received: ", res.status_code)
                 return
@@ -51,11 +51,12 @@ def collect_dref_final_reports():
         print ("Oops: Something Else", err)
     
     final_reports = pd.DataFrame(final_report_details)
-    final_reports.set_index("mdrcode", inplace=True)
+    # final_reports.set_index("mdrcode", inplace=True)
     
     final_reports.to_csv("csv_files/final_report_details.csv", index=True)
     
-    
+
+collect_dref_final_reports()
 
 
 def collect_appeals(gt_date):
@@ -186,6 +187,6 @@ def main():
     
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 
