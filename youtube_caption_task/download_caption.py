@@ -1,4 +1,5 @@
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 import pandas as pd
 import time
 import warnings
@@ -6,7 +7,8 @@ warnings.filterwarnings("ignore")
 import openai
 import os
 import random
-
+from dotenv import load_dotenv
+load_dotenv()
 
 def link_to_id(link):
     '''
@@ -20,7 +22,16 @@ def link_to_id(link):
         raise ValueError("Invalid YouTube link format.")
     
 def collect_captions(video_list): # takes a list of YouTube video links
-    ytt_api = YouTubeTranscriptApi()
+    username = os.environ.get("PROXY_USERNAME")
+    password = os.environ.get("PROXY_PASSWORD")
+    if not username or not password:
+        raise ValueError("Proxy username and password must be set in environment variables.")
+    ytt_api = YouTubeTranscriptApi(
+        proxy_config=WebshareProxyConfig(
+            proxy_username=username,
+            proxy_password=password,
+        )
+    )
 
     caption_list = []
     # iterate through each video link
@@ -45,13 +56,12 @@ def collect_captions(video_list): # takes a list of YouTube video links
         # rate limit handling for YouTube API
         time.sleep(2)
         transcripts = list(transcript_list)
-        print(transcripts)
         if len(transcripts) == 0:
             caption_list.append("No Caption Available")
             continue
 
         available_languages = [t.language_code for t in transcript_list]
-        
+        print(available_languages)
         preferred = ["en", "es", "fr"]
         cap_lang = next((p for p in preferred if p in available_languages), available_languages[0])
         print(cap_lang)
@@ -74,10 +84,8 @@ def collect_captions(video_list): # takes a list of YouTube video links
 if __name__ == "__main__":
     df = pd.read_csv("../gym_1_net_sol_limitless_step1.csv", index_col="project_id")
     video_list = df["project_title"].tolist()
-    print(video_list[:5])  # Print first 5 video links for verification
-    subset = df.sample(n=30, random_state=42)
     
-    captions = collect_captions(subset["project_title"].tolist())
-    subset["captions"] = captions
-    subset.to_csv("../captions_collected.csv", index=False)
+    captions = collect_captions(video_list)
+    df["captions"] = captions
+    df.to_csv("../captions_collected.csv", index=False)
 
