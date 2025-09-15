@@ -56,12 +56,15 @@ def collect_dref_final_reports():
     final_reports.to_csv("csv_files/final_report_details.csv", index=True)
     
 
-collect_dref_final_reports()
+# collect_dref_final_reports()
 
 
-def collect_appeals(gt_date):
-    api_endpoint = "api/v2/appeal/"
-    params = {"start_date__gt" : gt_date}
+def collect_appeals(gt_date, ls_date=None):
+    api_endpoint = "/api/v2/appeal/"
+    params = {
+        "start_date__gt" : gt_date,
+        "start_date__lt" : ls_date if ls_date else datetime.now()
+    }
     appeals_list = []
     link = base_url + api_endpoint
 
@@ -93,9 +96,42 @@ def collect_appeals(gt_date):
     return df
 
 
-def collect_appeals_docs(gt_date):
-    appeals_df = collect_appeals(gt_date)
-    api_endpoint = "api/v2/appeal_document/"
+def collect_all_appeals():
+    api_endpoint = "/api/v2/appeal/"
+    appeals_list = []
+    link = base_url + api_endpoint
+
+    try:
+        while link != None:
+            print(f"Calling {link}...")
+            res = requests.get(link)
+            if res.status_code == 200:
+                bucket = res.json()
+                appeals_list += bucket["results"]
+                link = bucket["next"]
+            else:
+                print("Invalid response statuse code received: ", res.status_code)
+                return
+            
+    except requests.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except requests.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except requests.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except requests.exceptions.RequestException as err:
+        print ("Oops: Something Else", err)
+    
+    df = pd.DataFrame(appeals_list)
+    df.set_index("code", inplace=True)
+    df.to_csv(f"all_appeals.csv")
+    return df
+
+collect_all_appeals()
+
+def collect_appeals_docs(gt_date, ls_date=None):
+    appeals_df = collect_appeals(gt_date, ls_date)
+    api_endpoint = "/api/v2/appeal_document/"
     parameters = {"created_at__gt": gt_date}
     doc_list = []
     link = base_url + api_endpoint
@@ -146,7 +182,12 @@ def collect_appeals_docs(gt_date):
     
     df = pd.DataFrame(concat_docs)
     df = df.fillna("")
-    df.to_csv(f"docs_from_{gt_date.year}_{gt_date.month}_{gt_date.day}.csv")
+    df["code"] = df["appeal"].apply(lambda x: x["code"])
+    df.set_index("code", inplace=True)
+    doc_urls = df["document_url"]
+    appeals_df["document_url"] = doc_urls
+    appeals_df = appeals_df[["document_url"] + [col for col in appeals_df.columns if col != "document_url"]]
+    appeals_df.to_excel(f"docs_from_{gt_date.year}_{gt_date.month}_{gt_date.day}.xlsx", index=True)
 
 
 def collect_appeals_pdf(title, link):
@@ -164,24 +205,21 @@ def collect_appeals_pdf(title, link):
     except Exception as e:
         print(f"Error found: ", e)
 
-# collect_dref_final_reports()
+# def main():
+#     year = 2022
+#     month = 12
+#     day = 1
+#     gt_date = datetime(year, month, day, 0, 0, 0)
+#     collect_appeals_docs(gt_date=gt_date)
 
-
-def main():
-    year = 2022
-    month = 12
-    day = 1
-    gt_date = datetime(year, month, day, 0, 0, 0)
-    collect_appeals_docs(gt_date=gt_date)
-
-    df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
-    df = df.fillna("")
-    for _, row in df.iterrows():
-        link = row["document_url"]
-        title = ast.literal_eval(row["appeal"])["code"]
-        if link == "":
-            link = row["document"]
-        collect_appeals_pdf(f"document_folder/{title}", link)
+#     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
+#     df = df.fillna("")
+#     for _, row in df.iterrows():
+#         link = row["document_url"]
+#         title = ast.literal_eval(row["appeal"])["code"]
+#         if link == "":
+#             link = row["document"]
+#         collect_appeals_pdf(f"document_folder/{title}", link)
     
 
     
