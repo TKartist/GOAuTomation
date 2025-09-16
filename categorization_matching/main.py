@@ -172,11 +172,14 @@ print(len(merged))
 print(len(dates))
 merged["Correct_cat"] = marks
 merged["start_date"] = dates
-
-merged["start_date"] = pd.to_datetime(merged["start_date"], errors="coerce").dt.tz_localize(None)
+merged["start_date"] = (
+    pd.to_datetime(merged["start_date"], errors="coerce", utc=True)
+      .dt.tz_convert(None)
+)
 
 merged = merged[merged["Correct_cat"] == False]
 merged = merged.drop(columns=["Correct_cat"])
+merged = merged.sort_values(by="start_date", ascending=False)
 merged.to_excel("disaster_type_comparison.xlsx", index=True)
 
 print(f"Potential Issue: {marks.count(False)}")
