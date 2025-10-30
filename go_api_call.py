@@ -59,6 +59,42 @@ def collect_dref_final_reports():
 # collect_dref_final_reports()
 
 
+def collect_dref3():
+    GO_API_KEY = os.getenv("GO_API_KEY")
+    headers = {
+        "Authorization" : f"Token {GO_API_KEY}",
+    }
+    api_endpoint = "/api/v2/dref3/"
+    final_report_details = []
+    link = base_url + api_endpoint
+    try:
+        while link != None:
+            print(f"Calling {link}...")
+            res = requests.get(link, headers=headers)
+            if res.status_code == 200:
+                bucket = res.json()
+                final_report_details = bucket
+                
+                link = None
+            else:
+                print("Invalid response statuse code received: ", res.status_code)
+                return
+    
+    except requests.exceptions.HTTPError as errh:
+        print ("Http Error:",errh)
+    except requests.exceptions.ConnectionError as errc:
+        print ("Error Connecting:",errc)
+    except requests.exceptions.Timeout as errt:
+        print ("Timeout Error:",errt)
+    except requests.exceptions.RequestException as err:
+        print ("Oops: Something Else", err)
+
+    final_reports = pd.DataFrame(final_report_details)
+    # final_reports.set_index("mdrcode", inplace=True)
+    
+    final_reports.to_csv("csv_files/dref3_data.csv", index=True)
+
+
 def collect_appeals(gt_date, ls_date=None):
     api_endpoint = "/api/v2/appeal/"
     params = {
@@ -127,7 +163,7 @@ def collect_all_appeals():
     df.to_csv(f"all_appeals.csv")
     return df
 
-collect_all_appeals()
+# collect_all_appeals()
 
 def collect_appeals_docs(gt_date, ls_date=None):
     appeals_df = collect_appeals(gt_date, ls_date)
@@ -205,26 +241,26 @@ def collect_appeals_pdf(title, link):
     except Exception as e:
         print(f"Error found: ", e)
 
-# def main():
-#     year = 2022
-#     month = 12
-#     day = 1
-#     gt_date = datetime(year, month, day, 0, 0, 0)
-#     collect_appeals_docs(gt_date=gt_date)
+def main():
+    year = 2022
+    month = 7
+    day = 1
+    gt_date = datetime(year, month, day, 0, 0, 0)
+    collect_appeals_docs(gt_date=gt_date)
 
-#     df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
-#     df = df.fillna("")
-#     for _, row in df.iterrows():
-#         link = row["document_url"]
-#         title = ast.literal_eval(row["appeal"])["code"]
-#         if link == "":
-#             link = row["document"]
-#         collect_appeals_pdf(f"document_folder/{title}", link)
+    # df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
+    # df = df.fillna("")
+    # for _, row in df.iterrows():
+    #     link = row["document_url"]
+    #     title = ast.literal_eval(row["appeal"])["code"]
+    #     if link == "":
+    #         link = row["document"]
+    #     collect_appeals_pdf(f"document_folder/{title}", link)
     
 
     
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
 
