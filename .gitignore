@@ -16,10 +16,13 @@ info_withdrawl.py
 
 
 .env
-csv_files/final_report_details.csv
 
 gym_1_net_sol_limitless_step1.csv
 youtube_caption_task/.env
 captions_collected.csv
 captions_collected_with_summary.csv
 youtube_caption_task/proxy_server_activation.py
+*.csv
+*.xlsx
+categorization_matching/
+csv_files/final_report_details.csv
