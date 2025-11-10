@@ -21,6 +21,9 @@ for appeal_id, ops in breakdown.items():
     count = len(ops)
     alloc_count = 0
     onset_count = ops["type_of_onset"].nunique()
+    # x = ops['stage'].value_counts()['Application']
+    # if x > 1:
+    #     print(f"Appeal {appeal_id} has multiple applications ({x})")
     if onset_count > 1:
         print(f"Appeal {appeal_id} has multiple onsets ({onset_count})")
     
