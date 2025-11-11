@@ -44,10 +44,7 @@ def organize_bucket(bucket):
 
 def convert_pdf_to_text():
     pdf_list = os.listdir("document_folder")
-    txt_list = os.listdir("output2")
     for pdf in pdf_list:
-        if f"{pdf.split(".")[0]}.txt" in txt_list:
-            continue
         bucket = pdf_to_text(f"document_folder/{pdf}")
         if bucket == []:
             continue
@@ -83,7 +80,7 @@ def summarize(filename):
 def main():
     '''
     Read documents from 'document_folder' and convert the pdf files to html
-    proceed to organize them and store them in output folder
+    proceed to organize them and store them in 'output' folder
     '''
     convert_pdf_to_text()
     files = os.listdir("output")
