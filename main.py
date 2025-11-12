@@ -83,13 +83,13 @@ def main():
     proceed to organize them and store them in 'output' folder
     '''
     convert_pdf_to_text()
-    files = os.listdir("output")
-    outputs = []
-    for file in files:
-        outputs.append(summarize(f"output/{file}"))
-    with open("output_files/summary_file.txt", "w") as f:
-        f.write(str(outputs))
-        f.close()
+    # files = os.listdir("output")
+    # outputs = []
+    # for file in files:
+    #     outputs.append(summarize(f"output/{file}"))
+    # with open("output_files/summary_file.txt", "w") as f:
+    #     f.write(str(outputs))
+    #     f.close()
     print("ALL FILES SUMMARIZED")
 
 if __name__ == "__main__":
