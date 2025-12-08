@@ -30,13 +30,13 @@ def collect_dref_final_reports():
             res = requests.get(link, headers=headers)
             if res.status_code == 200:
                 bucket = res.json()
-                final_report_details = bucket["results"]
-                # for item in temp:
-                #     final_report_details.append({
-                #         "mdrcode" : item["appeal_code"],
-                #         "actions" : item["planned_interventions"]
-                #     })
-                link = None
+                temp = bucket["results"]
+                for item in temp:
+                    final_report_details.append({
+                        "mdrcode" : item["appeal_code"],
+                        "actions" : item["planned_interventions"]
+                    })
+                link = bucket["next"]
             else:
                 print("Invalid response statuse code received: ", res.status_code)
                 return
