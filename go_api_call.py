@@ -11,14 +11,12 @@ DONOR = "donor"
 base_url = "https://goadmin.ifrc.org"
 load_dotenv()
 
-
-
 def collect_dref_final_reports():
     GO_API_KEY = os.getenv("GO_API_KEY")
     headers = {
         "Authorization" : f"Token {GO_API_KEY}",
     }
-    api_endpoint = "/api/v2/dref-final-report/"
+    api_endpoint = "/api/v2/dref3/"
     '''
         Refer to 'planned_interventions' key for specific details
     '''
@@ -32,10 +30,7 @@ def collect_dref_final_reports():
                 bucket = res.json()
                 temp = bucket["results"]
                 for item in temp:
-                    final_report_details.append({
-                        "mdrcode" : item["appeal_code"],
-                        "actions" : item["planned_interventions"]
-                    })
+                    final_report_details.append(item)
                 link = bucket["next"]
             else:
                 print("Invalid response statuse code received: ", res.status_code)
@@ -52,11 +47,10 @@ def collect_dref_final_reports():
     
     final_reports = pd.DataFrame(final_report_details)
     # final_reports.set_index("mdrcode", inplace=True)
-    
-    final_reports.to_csv("csv_files/final_report_details.csv", index=True)
+    final_reports.to_csv("csv_files/dref3_records_all.csv", index=True)
     
 
-# collect_dref_final_reports()
+collect_dref_final_reports()
 
 
 def collect_dref3():
@@ -261,6 +255,6 @@ def main():
     
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 

@@ -164,7 +164,7 @@ if "region" in df.columns and not df["region"].isna().all():
     data = sector_by_region.values
 
     plt.figure(figsize=(16, 9))
-    plt.imshow(data, aspect="auto")
+    plt.imshow(data, aspect="auto", cmap="plasma_r")
     plt.colorbar(label="Number of Operations")
     plt.xticks(range(len(regions)), regions, rotation=45, ha="right")
     plt.yticks(range(len(sectors)), sectors)
