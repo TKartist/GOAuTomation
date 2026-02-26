@@ -25,3 +25,6 @@ youtube_caption_task/proxy_server_activation.py
 *.xlsx
 categorization_matching/
 csv_files/final_report_details.csv
+*/.env
+*/data/
+
