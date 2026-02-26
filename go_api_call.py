@@ -35,7 +35,7 @@ def collect_dref_final_reports():
             else:
                 print("Invalid response statuse code received: ", res.status_code)
                 return
-    
+
     except requests.exceptions.HTTPError as errh:
         print ("Http Error:",errh)
     except requests.exceptions.ConnectionError as errc:
@@ -50,7 +50,7 @@ def collect_dref_final_reports():
     final_reports.to_csv("csv_files/dref3_records_all.csv", index=True)
     
 
-collect_dref_final_reports()
+# collect_dref_final_reports()
 
 
 def collect_dref3():
@@ -86,8 +86,10 @@ def collect_dref3():
     final_reports = pd.DataFrame(final_report_details)
     # final_reports.set_index("mdrcode", inplace=True)
     
-    final_reports.to_csv("csv_files/dref3_data.csv", index=True)
+    final_reports.to_csv("csv_files/dref3_all_records.csv", index=True)
 
+
+collect_dref3()
 
 def collect_appeals(gt_date, ls_date=None):
     api_endpoint = "/api/v2/appeal/"
@@ -236,12 +238,12 @@ def collect_appeals_pdf(title, link):
         print(f"Error found: ", e)
 
 def main():
-    year = 2022
-    month = 7
-    day = 1
-    gt_date = datetime(year, month, day, 0, 0, 0)
-    collect_appeals_docs(gt_date=gt_date)
-
+    # year = 2022
+    # month = 7
+    # day = 1
+    # gt_date = datetime(year, month, day, 0, 0, 0)
+    # collect_appeals_docs(gt_date=gt_date)
+    print("GO API CALL being made")
     # df = pd.read_csv(f"docs_from_{year}_{month}_{day}.csv")
     # df = df.fillna("")
     # for _, row in df.iterrows():
